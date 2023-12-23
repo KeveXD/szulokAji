@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "907296353927",
+    "project_id": "bevasarlolista2-a6243",
+    "storage_bucket": "bevasarlolista2-a6243.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:907296353927:android:6e39597d622a931514d222",
+        "android_client_info": {
+          "package_name": "com.example.bevasarlolista2"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBCnHHeYRUYPgB23MAyOTk6jIqmKw1JXvI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
