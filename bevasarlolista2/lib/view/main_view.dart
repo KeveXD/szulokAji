@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:bevasarlolista2/view/listitem.dart';
 import 'package:bevasarlolista2/model/main_view_model.dart';
+import 'package:bevasarlolista2/data_model/list_item_data_model.dart';
 
 class MainView extends StatefulWidget {
   @override
@@ -25,7 +26,7 @@ class _MainViewState extends State<MainView> {
       body: Column(
         children: [
           Expanded(
-            child: StreamBuilder<List<String>>(
+            child: StreamBuilder<List<ListItemDataModel>>(
               stream: viewModel.itemsStream,
               builder: (context, snapshot) {
                 if (snapshot.hasData) {
@@ -33,12 +34,14 @@ class _MainViewState extends State<MainView> {
                     itemCount: snapshot.data!.length,
                     itemBuilder: (context, index) {
                       return ListItem(
-                        itemName: snapshot.data![index],
+                        itemName: snapshot.data![index].title,
                         onDelete: () {
-                          viewModel.deleteItem(index);
+                          viewModel
+                              .deleteItem(snapshot.data![index].id.toString());
                         },
                         onCheck: () {
-                          viewModel.checkItem(index);
+                          viewModel
+                              .checkItem(snapshot.data![index].id.toString());
                         },
                       );
                     },
@@ -46,7 +49,7 @@ class _MainViewState extends State<MainView> {
                 } else if (snapshot.hasError) {
                   return Text('Error: ${snapshot.error}');
                 } else {
-                  return CircularProgressIndicator();
+                  return Center(child: CircularProgressIndicator());
                 }
               },
             ),

@@ -12,4 +12,21 @@ class ListItemDataModel {
     required this.comment,
     required this.isChecked,
   });
+
+  ListItemDataModel.fromMap(Map<String, dynamic> map)
+      : id = map['id'],
+        date = DateTime.parse(map['date']),
+        title = map['title'],
+        comment = map['comment'],
+        isChecked = map['isChecked'];
+
+  Map<String, dynamic> toMap() {
+    return {
+      if (id != null) 'id': id,
+      'date': date.toIso8601String(),
+      'title': title,
+      'comment': comment,
+      'isChecked': isChecked,
+    };
+  }
 }
