@@ -5,41 +5,50 @@ import 'dart:async';
 
 class MainViewModel {
   FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  CollectionReference _itemsCollection =
+  CollectionReference firebaseItemsCollection =
       FirebaseFirestore.instance.collection('items');
 
-  // Hozzunk létre egy StreamController-t a listaelemek kezeléséhez
-  final _itemsController =
+  final _listItemsController =
       StreamController<List<ListItemDataModel>>.broadcast();
 
-  // Definiáljuk a stream-et, amely figyeli a listaelemeket
-  Stream<List<ListItemDataModel>> get itemsStream => _itemsController.stream;
+  Stream<List<ListItemDataModel>> get itemsStream =>
+      _listItemsController.stream;
 
   Future<void> loadItemsFromFirebase() async {
     try {
-      var snapshot = await _itemsCollection.get();
+      var snapshot = await firebaseItemsCollection.get();
       var items = snapshot.docs
           .map((doc) =>
               ListItemDataModel.fromMap(doc.data() as Map<String, dynamic>))
           .toList();
 
-      // Frissítjük a streamet az új elemekkel
-      _itemsController.add(items);
+      // Frissítsük a streamet
+      _listItemsController.sink.add(items);
     } catch (e) {
       print('Error loading items: $e');
     }
   }
 
   Future<void> addItemToFirebase(ListItemDataModel item) async {
-    await _itemsCollection.add(item.toMap());
+    await firebaseItemsCollection.add(item.toMap());
   }
 
-  Future<void> deleteItem(String docId) async {
-    await _itemsCollection.doc(docId).delete();
+  Future<void> deleteItem(int id) async {
+    // Keresd meg az elemet az ID alapján
+    var doc =
+        await firebaseItemsCollection.where('id', isEqualTo: id).limit(1).get();
+
+    // Töröld az elemet, ha találtál egyezést
+    if (doc.docs.isNotEmpty) {
+      await doc.docs.first.reference.delete();
+    }
+
+    // Frissítsük a streamet az elemek nélkül
+    await loadItemsFromFirebase();
   }
 
   Future<void> checkItem(String docId) async {
-    await _itemsCollection.doc(docId).update({'isChecked': true});
+    await firebaseItemsCollection.doc(docId).update({'isChecked': true});
   }
 
   Future<void> showAddItemDialog(BuildContext context) async {
@@ -73,6 +82,7 @@ class MainViewModel {
             TextButton(
               onPressed: () async {
                 ListItemDataModel newItem = ListItemDataModel(
+                  id: await newId(),
                   date: DateTime.now(),
                   title: titleController.text,
                   comment: commentController.text,
@@ -80,6 +90,7 @@ class MainViewModel {
                 );
 
                 await addItemToFirebase(newItem);
+                await loadItemsFromFirebase();
                 Navigator.of(context).pop();
               },
               child: Text('Add'),
@@ -90,8 +101,28 @@ class MainViewModel {
     );
   }
 
-  // Ne felejtsd el lezárni a StreamController-t, amikor már nincs rá szükség
+  Future<int?> newId() async {
+    try {
+      var snapshot = await firebaseItemsCollection.get();
+      var existingIds = snapshot.docs
+          .map((doc) =>
+              ListItemDataModel.fromMap(doc.data() as Map<String, dynamic>).id)
+          .whereType<int>() // Szűrjük ki a null értékeket
+          .toList();
+
+      int newId = 0;
+      while (existingIds.contains(newId)) {
+        newId++;
+      }
+      //print("lol $newId");
+      return newId;
+    } catch (e) {
+      print('Error generating new ID: $e');
+      return null; // Alapértelmezett érték, ha hiba történik
+    }
+  }
+
   void dispose() {
-    _itemsController.close();
+    _listItemsController.close();
   }
 }

@@ -21,7 +21,7 @@ class _MainViewState extends State<MainView> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('MainView'),
+        title: Text('Bevásárlólista'),
       ),
       body: Column(
         children: [
@@ -36,12 +36,10 @@ class _MainViewState extends State<MainView> {
                       return ListItem(
                         itemName: snapshot.data![index].title,
                         onDelete: () {
-                          viewModel
-                              .deleteItem(snapshot.data![index].id.toString());
+                          viewModel.deleteItem(snapshot.data![index].id ?? 0);
                         },
                         onCheck: () {
-                          viewModel
-                              .checkItem(snapshot.data![index].id.toString());
+                          //viewModel.checkItem(snapshot.data![index].id ?? 0);
                         },
                       );
                     },
@@ -60,7 +58,7 @@ class _MainViewState extends State<MainView> {
               onPressed: () {
                 viewModel.showAddItemDialog(context);
               },
-              child: Text('Add Item'),
+              child: Text('Új elem'),
             ),
           ),
         ],
