@@ -48,8 +48,24 @@ class MainViewModel {
     await loadItemsFromFirebase();
   }
 
-  Future<void> checkItem(String docId) async {
-    await firebaseItemsCollection.doc(docId).update({'isChecked': true});
+  Future<void> checkItem(int itemId, bool isChecked) async {
+    try {
+      // Keresd meg az elemet az ID alapján
+      var doc = await firebaseItemsCollection
+          .where('id', isEqualTo: itemId)
+          .limit(1)
+          .get();
+
+      // Frissítsd az elemet, ha találtál egyezést
+      if (doc.docs.isNotEmpty) {
+        await doc.docs.first.reference.update({'isChecked': isChecked});
+      }
+
+      // Frissítsük a streamet az elemekkel
+      await loadItemsFromFirebase();
+    } catch (e) {
+      print('Error updating item: $e');
+    }
   }
 
   Future<void> showAddItemDialog(BuildContext context) async {

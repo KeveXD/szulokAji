@@ -40,8 +40,9 @@ class _MainViewState extends State<MainView> {
                           onDelete: () {
                             viewModel.deleteItem(snapshot.data![index].id ?? 0);
                           },
-                          onCheck: () {
-                            //viewModel.checkItem(snapshot.data![index].id ?? 0);
+                          onCheck: (bool isChecked) {
+                            viewModel.checkItem(
+                                snapshot.data![index].id ?? 0, isChecked);
                           },
                         );
                       },
@@ -58,7 +59,6 @@ class _MainViewState extends State<MainView> {
             ElevatedButton(
               onPressed: () {
                 viewModel.showAddItemDialog(context);
-                //viewModel.loadItemsFromFirebase(context)
               },
               child: Padding(
                 padding: const EdgeInsets.all(12.0),

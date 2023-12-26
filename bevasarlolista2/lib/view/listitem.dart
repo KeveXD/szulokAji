@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 class ListItem extends StatefulWidget {
   final String itemName;
   final VoidCallback onDelete;
-  final VoidCallback onCheck;
+  final Function(bool) onCheck; // Módosítottuk a típust
 
   ListItem({
     required this.itemName,
@@ -37,11 +37,12 @@ class _ListItemState extends State<ListItem> {
             ),
             Checkbox(
               value: isChecked,
-              onChanged: (bool? value) {
+              onChanged: (bool? value) async {
                 setState(() {
                   isChecked = value ?? false;
                 });
-                widget.onCheck();
+                widget
+                    .onCheck(isChecked); // Itt továbbítjuk az isChecked értéket
               },
             ),
           ],
