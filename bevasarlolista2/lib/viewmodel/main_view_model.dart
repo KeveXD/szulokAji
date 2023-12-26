@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:bevasarlolista2/data_model/list_item_data_model.dart';
 import 'dart:async';
+import 'package:bevasarlolista2/view/new_listitem_dialog.dart';
 
 class MainViewModel {
   FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -31,6 +32,7 @@ class MainViewModel {
 
   Future<void> addItemToFirebase(ListItemDataModel item) async {
     await firebaseItemsCollection.add(item.toMap());
+    await loadItemsFromFirebase();
   }
 
   Future<void> deleteItem(int id) async {
@@ -43,7 +45,6 @@ class MainViewModel {
       await doc.docs.first.reference.delete();
     }
 
-    // Frissítsük a streamet az elemek nélkül
     await loadItemsFromFirebase();
   }
 
@@ -52,53 +53,28 @@ class MainViewModel {
   }
 
   Future<void> showAddItemDialog(BuildContext context) async {
-    TextEditingController titleController = TextEditingController();
-    TextEditingController commentController = TextEditingController();
+    await showAddItemDialog2(context);
+    loadItemsFromFirebase();
+  }
 
-    return showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: Text('Add New Item'),
-          content: Column(
-            children: [
-              TextField(
-                controller: titleController,
-                decoration: InputDecoration(labelText: 'Title'),
-              ),
-              TextField(
-                controller: commentController,
-                decoration: InputDecoration(labelText: 'Comment'),
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: Text('Cancel'),
-            ),
-            TextButton(
-              onPressed: () async {
-                ListItemDataModel newItem = ListItemDataModel(
-                  id: await newId(),
-                  date: DateTime.now(),
-                  title: titleController.text,
-                  comment: commentController.text,
-                  isChecked: false,
-                );
+  Future<void> updateItemInFirebase(ListItemDataModel updatedItem) async {
+    try {
+      // Keresd meg az elemet az ID alapján
+      var doc = await firebaseItemsCollection
+          .where('id', isEqualTo: updatedItem.id)
+          .limit(1)
+          .get();
 
-                await addItemToFirebase(newItem);
-                await loadItemsFromFirebase();
-                Navigator.of(context).pop();
-              },
-              child: Text('Add'),
-            ),
-          ],
-        );
-      },
-    );
+      // Frissítsd az elemet, ha találtál egyezést
+      if (doc.docs.isNotEmpty) {
+        await doc.docs.first.reference.update(updatedItem.toMap());
+      }
+
+      // Frissítsük a streamet az elemekkel
+      await loadItemsFromFirebase();
+    } catch (e) {
+      print('Error updating item: $e');
+    }
   }
 
   Future<int?> newId() async {
@@ -107,7 +83,7 @@ class MainViewModel {
       var existingIds = snapshot.docs
           .map((doc) =>
               ListItemDataModel.fromMap(doc.data() as Map<String, dynamic>).id)
-          .whereType<int>() // Szűrjük ki a null értékeket
+          .whereType<int>()
           .toList();
 
       int newId = 0;

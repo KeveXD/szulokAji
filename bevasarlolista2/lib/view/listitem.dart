@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-class ListItem extends StatelessWidget {
+class ListItem extends StatefulWidget {
   final String itemName;
   final VoidCallback onDelete;
   final VoidCallback onCheck;
@@ -12,28 +12,45 @@ class ListItem extends StatelessWidget {
   });
 
   @override
+  _ListItemState createState() => _ListItemState();
+}
+
+class _ListItemState extends State<ListItem> {
+  bool isChecked = false;
+
+  @override
   Widget build(BuildContext context) {
-    return ListTile(
-      title: Text(itemName),
-      trailing: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          IconButton(
-            icon: Icon(Icons.delete),
-            onPressed: onDelete,
-          ),
-          Checkbox(
-            value: false, // Itt állíthatod be az alapértelmezett értéket
-            onChanged: (bool? isChecked) {
-              onCheck();
-            },
-          ),
-        ],
+    return Card(
+      elevation: 3,
+      margin: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+      child: ListTile(
+        title: Text(
+          widget.itemName,
+          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+        ),
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            IconButton(
+              icon: Icon(Icons.delete, color: Colors.red),
+              onPressed: widget.onDelete,
+            ),
+            Checkbox(
+              value: isChecked,
+              onChanged: (bool? value) {
+                setState(() {
+                  isChecked = value ?? false;
+                });
+                widget.onCheck();
+              },
+            ),
+          ],
+        ),
+        onTap: () {
+          // Itt hozzáadhatod az egyes listaelemekhez tartozó egyedi interakciókat vagy kezeléseket.
+          print('Selected item: ${widget.itemName}');
+        },
       ),
-      onTap: () {
-        // Itt hozzáadhatod az egyes listaelemekhez tartozó egyedi interakciókat vagy kezeléseket.
-        print('Selected item: $itemName');
-      },
     );
   }
 }
