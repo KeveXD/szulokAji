@@ -114,6 +114,38 @@ class MainViewModel {
     }
   }
 
+  Future<void> deleteSelectedItems() async {
+    try {
+      var snapshot = await firebaseItemsCollection.get();
+      var items = snapshot.docs
+          .map((doc) =>
+              ListItemDataModel.fromMap(doc.data() as Map<String, dynamic>))
+          .toList();
+
+      // Kijelölt elemek listája
+      var selectedItems =
+          items.where((item) => item.isChecked == true).toList();
+
+      // Töröljük a kijelölt elemeket
+      for (var selectedItem in selectedItems) {
+        await firebaseItemsCollection
+            .where('id', isEqualTo: selectedItem.id)
+            .limit(1)
+            .get()
+            .then((querySnapshot) {
+          if (querySnapshot.docs.isNotEmpty) {
+            querySnapshot.docs.first.reference.delete();
+          }
+        });
+      }
+
+      // Frissítsük a streamet a frissített listával
+      await loadItemsFromFirebase();
+    } catch (e) {
+      print('Error deleting selected items: $e');
+    }
+  }
+
   void dispose() {
     _listItemsController.close();
   }

@@ -4,6 +4,7 @@ class ListItemDataModel {
   String title;
   String comment;
   bool isChecked;
+  int? pocketId;
 
   ListItemDataModel({
     this.id,
@@ -11,6 +12,7 @@ class ListItemDataModel {
     required this.title,
     required this.comment,
     required this.isChecked,
+    this.pocketId,
   });
 
   ListItemDataModel.fromMap(Map<String, dynamic> map)
@@ -18,7 +20,8 @@ class ListItemDataModel {
         date = DateTime.parse(map['date']),
         title = map['title'],
         comment = map['comment'],
-        isChecked = map['isChecked'];
+        isChecked = map['isChecked'],
+        pocketId = map['pocketId'];
 
   Map<String, dynamic> toMap() {
     return {
@@ -27,6 +30,7 @@ class ListItemDataModel {
       'title': title,
       'comment': comment,
       'isChecked': isChecked,
+      if (pocketId != null) 'pocketId': pocketId,
     };
   }
 }

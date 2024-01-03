@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:bevasarlolista2/view/listitem.dart';
-import 'package:bevasarlolista2/viewmodel/main_view_model.dart';
+import 'package:bevasarlolista2/viewmodel/main_viewmodel.dart';
 import 'package:bevasarlolista2/data_model/list_item_data_model.dart';
 
 class MainView extends StatefulWidget {
   @override
-  _MainViewState createState() => _MainViewState();
+  State createState() => _MainViewState();
 }
 
 class _MainViewState extends State<MainView> {
@@ -36,7 +36,7 @@ class _MainViewState extends State<MainView> {
                       itemCount: snapshot.data!.length,
                       itemBuilder: (context, index) {
                         return ListItem(
-                          itemName: snapshot.data![index].title,
+                          listItem: snapshot.data![index],
                           onDelete: () {
                             viewModel.deleteItem(snapshot.data![index].id ?? 0);
                           },
@@ -63,6 +63,17 @@ class _MainViewState extends State<MainView> {
               child: Padding(
                 padding: const EdgeInsets.all(12.0),
                 child: Text('Új elem', style: TextStyle(fontSize: 18)),
+              ),
+            ),
+            SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: () {
+                viewModel.deleteSelectedItems();
+              },
+              child: Padding(
+                padding: const EdgeInsets.all(12.0),
+                child:
+                    Text('Kijelöltek törlése', style: TextStyle(fontSize: 18)),
               ),
             ),
           ],

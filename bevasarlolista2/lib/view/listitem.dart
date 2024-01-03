@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:bevasarlolista2/data_model/list_item_data_model.dart';
 
 class ListItem extends StatefulWidget {
-  final String itemName;
+  final ListItemDataModel listItem;
   final VoidCallback onDelete;
-  final Function(bool) onCheck; // Módosítottuk a típust
+  final Function(bool) onCheck;
 
   ListItem({
-    required this.itemName,
+    required this.listItem,
     required this.onDelete,
     required this.onCheck,
   });
@@ -16,7 +17,14 @@ class ListItem extends StatefulWidget {
 }
 
 class _ListItemState extends State<ListItem> {
-  bool isChecked = false;
+  late bool isChecked; // Módosítottuk a típust
+
+  @override
+  void initState() {
+    super.initState();
+    // Inicializáljuk az isChecked értékét a listaelem alapján
+    isChecked = widget.listItem.isChecked ?? false;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -25,7 +33,7 @@ class _ListItemState extends State<ListItem> {
       margin: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
       child: ListTile(
         title: Text(
-          widget.itemName,
+          widget.listItem.title,
           style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
         ),
         trailing: Row(
@@ -41,15 +49,14 @@ class _ListItemState extends State<ListItem> {
                 setState(() {
                   isChecked = value ?? false;
                 });
-                widget
-                    .onCheck(isChecked); // Itt továbbítjuk az isChecked értéket
+                widget.onCheck(isChecked);
               },
             ),
           ],
         ),
         onTap: () {
           // Itt hozzáadhatod az egyes listaelemekhez tartozó egyedi interakciókat vagy kezeléseket.
-          print('Selected item: ${widget.itemName}');
+          print('Selected item: ${widget.listItem.title}');
         },
       ),
     );
